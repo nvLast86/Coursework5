@@ -1,70 +1,67 @@
 import requests
 from datetime import datetime
+import json
 
 
 class HeadHunter:
-    """
-    Класс HeadHunter создан для работы с сайтом hh.ru. Экземпляры класса создаются на основе переданного
-    ключевого слова от пользователя. Далее идет формирование списка вакансий.
-    """
     url = 'https://api.hh.ru/vacancies'
+    employers = [{'id': 1740, 'name': 'Яндекс'},
+                 {'id': 2180, 'name': 'OZON'},
+                 {'id': 3529, 'name': 'СБЕР'},
+                 {'id': 8550, 'name': 'Центр финансовых технологий'},
+                 {'id': 39305, 'name': 'Газпромнефть'},
+                 {'id': 41862, 'name': 'Контур'},
+                 {'id': 64174, 'name': '2GIS'},
+                 {'id': 67611, 'name': 'Тензор'},
+                 {'id': 966315, 'name': 'АО Омский НИИ приборостроения'},
+                 {'id': 2326492, 'name': 'Телеком-инжиниринг'}]
 
-    def __init__(self, keyword):
-        self.keyword = keyword
+    def __init__(self):
         self.vacancies = []
         self.get_vacancies()
 
-    def __repr__(self):
-        return f'Результат парсинга по сайту HeadHunter.ru по ключевому слову {self.keyword}\n' \
-               f'Количество вакансий: {len(self.vacancies)}'
-
     def get_vacancies(self):
-        """
-        Метод получения с сайта hh.ru вакансий на основе ключевого слова пользователя.
-        :return: список вакансий по ключевому слову.
-        """
-        for i in range(5):
-            params = {'text': self.keyword, 'employer_id': 3529, 'area': 113, 'page': i, 'per_page': 100}
-            response = requests.get(HeadHunter.url, params=params).json()['items']
-            self.correct_vacancies(response)
-            for vacancy in response:
-                self.vacancies.append(Vacancy('HeadHunter',
-                                              vacancy['id'],
-                                              vacancy['name'],
-                                              vacancy['employer']['name'],
-                                              vacancy['area']['name'],
-                                              [int(vacancy['salary']['from']), int(vacancy['salary']['to']),
-                                               vacancy['salary']['currency']],
-                                              vacancy['experience'] if 'experience' in vacancy.keys() else 'не указан',
-                                              'отсутствует' if vacancy.get('snippet').get('responsibility') is None else
-                                              vacancy.get('snippet').get('responsibility'),
-                                              vacancy['alternate_url'],
-                                              self.format_date(vacancy['published_at'])))
-        return self.vacancies
+        for employer in HeadHunter.employers:
+            for i in range(20):
+                params = {'employer_id': employer['id'], 'area': 113, 'page': i, 'per_page': 100}
+                employer_vacancies = requests.get(HeadHunter.url, params=params).json()['items']
+                for employer_vacancy in employer_vacancies:
+                    if employer_vacancy['salary'] is not None:
+                        vacancy = {}
+                        vacancy['id'] = employer_vacancy['id']
+                        vacancy['employer'] = employer['name']
+                        vacancy['name'] = employer_vacancy['name']
+                        vacancy['description'] = employer_vacancy['snippet']['responsibility']
+                        vacancy['experience'] = employer_vacancy['experience']['name']
+                        vacancy['salary_from'] = employer_vacancy['salary']['from']
+                        vacancy['salary_to'] = employer_vacancy['salary']['to']
+                        vacancy['area'] = employer_vacancy['area']['name']
+                        vacancy['link'] = employer_vacancy['alternate_url']
+                        vacancy['publish_date'] = datetime.fromisoformat(employer_vacancy['published_at']).\
+                            strftime("%Y-%m-%d")
+                        self.vacancies.append(vacancy)
 
-    @staticmethod
-    def correct_vacancies(response: dict):
-        """
-        Статистический метод корректировки полученного ответа от сайта.
-        Отсутствующие или равные None значения заменяются на нули или ''
-        """
-        for item in response:
-            if item['salary'] is None:
-                item['salary'] = {'from': 0, 'to': 0, 'currency': ''}
-            if 'from' not in item['salary'].keys():
-                item['salary']['from'] = 0
-            if 'to' not in item['salary'].keys():
-                item['salary']['to'] = 0
-            if item['salary']['from'] is None:
-                item['salary']['from'] = 0
-            if item['salary']['to'] is None:
-                item['salary']['to'] = 0
 
-    @staticmethod
-    def format_date(value):
-        """
-        Статистический метод вывода времени публикации вакансии в формате,
-        удобный для пользователя
-        """
-        date = datetime.fromisoformat(value).strftime("%Y-%m-%d %H:%M:%S")
-        return date
+
+if __name__ == '__main__':
+    test = HeadHunter()
+    x = json.dumps(test.vacancies, ensure_ascii=False)
+    with open('test.txt', 'w', encoding='utf-8') as outfile:
+        json.dump(x, outfile, ensure_ascii=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
