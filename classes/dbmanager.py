@@ -1,49 +1,38 @@
 import psycopg2
+import psycopg2
+from utils.config import config
 
 
-class DBManager(DBEditor):
+class DBManager:
 
+    def __init__(self, db_name, params):
+        self.db_name = db_name
+        self.params = params
 
-    def get_companies_and_vacancies_count(self):
-        """
-        Функция для получения списка всех компаний и количества вакансий у каждой компании
-        """
-        sql_request = """SELECT employer_name, COUNT(vacancies.vacancy_id) FROM employers
-                         INNER JOIN vacancies USING (employer_id)
-                         GROUP BY employer_name"""
+    def create_database(self):
+        """Создает базу данных и таблицы"""
+        # Подключаемся к postgres, чтобы создать БД
+        conn = psycopg2.connect(dbname='postgres', **self.params)
+        conn.autocommit = True
+        cur = conn.cursor()
 
-    def get_all_vacancies(self):
-        """
-        Функция получения списка всех вакансий с указанием названия компании, названия вакансии
-        и зарплаты и ссылки на вакансию
-        """
-        sql_request = """SELECT vacancy_name, employers.employer_name, salary_from, salary_to, 
-                         vacancy_link FROM vacancies
-                         INNER JOIN employers USING (employer_id)"""
+        try:
+            cur.execute(f"DROP DATABASE IF EXISTS {self.db_name}")
+            cur.execute(f"CREATE DATABASE {self.db_name}")
 
-    def get_avg_salary(self):
-        """
-        Функция получения средней зарплаты по вакансиям
-        """
-        sql_request = """SELECT employers.employer_name, ROUND(AVG (salary_from)) as avg_salary_from, 
-                         ROUND(AVG(salary_to)) as avg_salary_to FROM vacancies
-                         INNER JOIN employers USING (employer_id)
-                         GROUP BY employers.employer_name"""
-    def get_vacancies_with_higher_salary(self):
-        """
-        Функция получения списка всех вакансий, у которых зарплата выше средней по всем вакансиям
-        """
-        sql_request = """SELECT vacancy_name, salary_from FROM vacancies
-                         WHERE salary_from > (SELECT AVG(salary_from) FROM vacancies)"""
+        except:
+            # Если было активное подключение, удаляет его, удаляет БД и создает ее заново
+            cur.execute("SELECT pg_terminate_backend(pg_stat_activity.pid) "
+                        "FROM pg_stat_activity "
+                        f"WHERE pg_stat_activity.datname = '{self.db_name}' ")
+            cur.execute(f"DROP DATABASE IF EXISTS {self.db_name}")
+            cur.execute(f"CREATE DATABASE {self.db_name}")
 
-    def get_vacancies_with_keyword(self):
-        """
-        Функция получения списка всех вакансий, в названии которых содержатся
-        переданные в метод слова, например “python”
-        """
-        sql_request = """SELECT vacancy_name, employers.employer_name FROM vacancies
-                         INNER JOIN employers USING (employer_id)
-                         WHERE vacancy_name LIKE '%python%'"""
+        finally:
+            cur.close()
+            conn.close()
 
+    #
 
-
+if __name__ == '__main__':
+    test = DBManager('test', config())
