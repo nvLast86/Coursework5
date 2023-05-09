@@ -1,6 +1,7 @@
 import psycopg2
 import psycopg2
 from utils.config import config
+from headhunter import HeadHunter
 
 
 class DBCreator:
@@ -39,18 +40,18 @@ class DBCreator:
                 with conn.cursor() as cur:
                     cur.execute("""CREATE TABLE IF NOT EXISTS employers (
                                        employer_id INTEGER PRIMARY KEY,
-                                       name VARCHAR(200) NOT NULL)""")
+                                       employer_name VARCHAR(200) NOT NULL)""")
 
                     cur.execute("""CREATE TABLE IF NOT EXISTS vacancies (
                                        vacancy_id INTEGER PRIMARY KEY,
-                                       employer_id INTEGER REFERENCES employers(employer_id) NOT NULL,
+                                       employer_id INTEGER  REFERENCES employers(employer_id) NOT NULL,
                                        vacancy_name VARCHAR(300) NOT NULL,
-                                       vacancy_description TEXT,
+                                       description TEXT,
                                        experience VARCHAR(100),
                                        salary_from INTEGER,
                                        salary_to INTEGER,
                                        area VARCHAR(200),
-                                       vacancy_link TEXT,
+                                       link TEXT,
                                        publish_date DATE)""")
         finally:
             conn.close()
