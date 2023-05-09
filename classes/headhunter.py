@@ -28,9 +28,9 @@ class HeadHunter:
                 for employer_vacancy in employer_vacancies:
                     if employer_vacancy['salary'] is not None:
                         vacancy = {}
-                        vacancy['id'] = employer_vacancy['id']
+                        vacancy['vacancy_id'] = employer_vacancy['id']
                         vacancy['employer_id'] = employer['id']
-                        vacancy['name'] = employer_vacancy['name']
+                        vacancy['vacancy_name'] = employer_vacancy['name']
                         vacancy['description'] = employer_vacancy['snippet']['responsibility']
                         vacancy['experience'] = employer_vacancy['experience']['name']
                         vacancy['salary_from'] = employer_vacancy['salary']['from']
