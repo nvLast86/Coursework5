@@ -29,7 +29,7 @@ class HeadHunter:
                     if employer_vacancy['salary'] is not None:
                         vacancy = {}
                         vacancy['id'] = employer_vacancy['id']
-                        vacancy['employer'] = employer['name']
+                        vacancy['employer_id'] = employer['id']
                         vacancy['name'] = employer_vacancy['name']
                         vacancy['description'] = employer_vacancy['snippet']['responsibility']
                         vacancy['experience'] = employer_vacancy['experience']['name']
