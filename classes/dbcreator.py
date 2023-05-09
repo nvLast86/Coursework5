@@ -32,7 +32,28 @@ class DBCreator:
             cur.close()
             conn.close()
 
-    # def insert_data(self):
+    def create_tables(self):
+        conn = psycopg2.connect(dbname=self.db_name, **self.params)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute("""CREATE TABLE IF NOT EXISTS employers (
+                                       employer_id INTEGER PRIMARY KEY,
+                                       name VARCHAR(255) NOT NULL)""")
+
+                    cur.execute("""CREATE TABLE IF NOT EXISTS vacancies (
+                                       vacancy_id INTEGER PRIMARY KEY,
+                                       employer_id INTEGER REFERENCES employers(employer_id) NOT NULL,
+                                       vacancy_name VARCHAR NOT NULL,
+                                       vacancy_description TEXT,
+                                       experience VARCHAR(100),
+                                       salary_from INTEGER,
+                                       salary_to INTEGER,
+                                       area VARCHAR(200),
+                                       vacancy_link TEXT,
+                                       publish_date DATE)""")
+        finally:
+            conn.close()
 
 
 if __name__ == '__main__':
