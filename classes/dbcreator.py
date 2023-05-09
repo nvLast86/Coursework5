@@ -39,12 +39,12 @@ class DBCreator:
                 with conn.cursor() as cur:
                     cur.execute("""CREATE TABLE IF NOT EXISTS employers (
                                        employer_id INTEGER PRIMARY KEY,
-                                       name VARCHAR(255) NOT NULL)""")
+                                       name VARCHAR(200) NOT NULL)""")
 
                     cur.execute("""CREATE TABLE IF NOT EXISTS vacancies (
                                        vacancy_id INTEGER PRIMARY KEY,
                                        employer_id INTEGER REFERENCES employers(employer_id) NOT NULL,
-                                       vacancy_name VARCHAR NOT NULL,
+                                       vacancy_name VARCHAR(300) NOT NULL,
                                        vacancy_description TEXT,
                                        experience VARCHAR(100),
                                        salary_from INTEGER,
@@ -57,5 +57,6 @@ class DBCreator:
 
 
 if __name__ == '__main__':
-    test = DBManager('test', config())
+    test = DBCreator('test1', config())
     test.create_database()
+    test.create_tables()
