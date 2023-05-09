@@ -3,7 +3,7 @@ import psycopg2
 from utils.config import config
 
 
-class DBManager:
+class DBCreator:
 
     def __init__(self, db_name, params):
         self.db_name = db_name
@@ -32,7 +32,9 @@ class DBManager:
             cur.close()
             conn.close()
 
-    #
+    # def insert_data(self):
+
 
 if __name__ == '__main__':
     test = DBManager('test', config())
+    test.create_database()
