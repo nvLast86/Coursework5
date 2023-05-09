@@ -56,6 +56,30 @@ class DBCreator:
         finally:
             conn.close()
 
+    def insert_data(self, data, is_employers=True):
+        conn = psycopg2.connect(dbname=self.db_name, **self.params)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    for employer_data in data:
+                        if is_employers:
+                            cur.execute("""INSERT INTO employers (employer_id, employer_name) 
+                                           VALUES (%s, %s)""", (employer_data['id'], employer_data['name']))
+                        else:
+                            cur.execute("""INSERT INTO vacancies (vacancy_id, employer_id, vacancy_name, 
+                                           description, experience, salary_from, salary_to, area, link, 
+                                           publish_date)
+                                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                                           (employer_data['vacancy_id'], employer_data['employer_id'],
+                                            employer_data['vacancy_name'], employer_data['description'],
+                                            employer_data['experience'], employer_data['salary_from'],
+                                            employer_data['salary_to'], employer_data['area'],
+                                            employer_data['link'], employer_data['publish_date']))
+        finally:
+            conn.close()
+
+
+
 
 if __name__ == '__main__':
     test = DBCreator('test1', config())
