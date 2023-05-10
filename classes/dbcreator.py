@@ -78,10 +78,105 @@ class DBCreator:
         finally:
             conn.close()
 
+    def get_companies_and_vacancies_count(self):
+        """
+        Функция для получения списка всех компаний и количества вакансий у каждой компании
+        """
+        sql_request = """SELECT employer_name, COUNT(vacancies.vacancy_id) FROM employers
+                         JOIN vacancies USING (employer_id)
+                         GROUP BY employer_name"""
+        conn = psycopg2.connect(dbname=self.db_name, **self.params)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(sql_request)
+                    result = cur.fetchall()
+        finally:
+            conn.close()
+            return result
 
+    def get_all_vacancies(self):
+        """
+        Функция получения списка всех вакансий с указанием названия компании, названия вакансии
+        и зарплаты и ссылки на вакансию
+        """
+        sql_request = """SELECT vacancy_name, employers.employer_name, salary_from, salary_to,
+                         vacancy_link FROM vacancies
+                         JOIN employers USING (employer_id)"""
+        conn = psycopg2.connect(dbname=self.db_name, **self.params)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(sql_request)
+                    result = cur.fetchall()
+                    # return result
+        finally:
+            conn.close()
+            return result
+
+    def get_avg_salary(self):
+        """
+        Функция получения средней зарплаты по вакансиям
+        """
+        sql_request = """SELECT employers.employer_name, ROUND(AVG (salary_from)) as avg_salary_from,
+                         ROUND(AVG(salary_to)) as avg_salary_to FROM vacancies
+                         JOIN employers USING (employer_id)
+                         GROUP BY employers.employer_name"""
+        conn = psycopg2.connect(dbname=self.db_name, **self.params)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(sql_request)
+                    result = cur.fetchall()
+                    # return result
+        finally:
+            conn.close()
+            return result
+
+    def get_vacancies_with_higher_salary(self):
+        """
+        Функция получения списка всех вакансий, у которых зарплата выше средней по всем вакансиям
+        """
+        sql_request = """SELECT vacancy_name, salary_from FROM vacancies
+                         WHERE salary_from > (SELECT AVG(salary_from) FROM vacancies)"""
+        conn = psycopg2.connect(dbname=self.db_name, **self.params)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(sql_request)
+                    result = cur.fetchall()
+                    # return result
+        finally:
+            conn.close()
+            return result
+
+    def get_vacancies_with_keyword(self, keyword):
+        """
+        Функция получения списка всех вакансий, в названии которых содержатся
+        переданные в метод слова, например “python”
+        """
+        sql_request = f"SELECT vacancy_name, employers.employer_name FROM vacancies " \
+                      f"JOIN employers USING (employer_id) " \
+                      f"WHERE vacancy_name LIKE '%{keyword}%'"
+        conn = psycopg2.connect(dbname=self.db_name, **self.params)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(sql_request)
+                    result = cur.fetchall()
+                    # return result
+        finally:
+            conn.close()
+            return result
 
 
 if __name__ == '__main__':
-    test = DBCreator('test1', config())
+    hh = HeadHunter()
+    test = DBCreator('test', config())
     test.create_database()
     test.create_tables()
+    test.insert_data(hh.employers)
+    test.insert_data(hh.vacancies, False)
+    test.get_companies_and_vacancies_count()
+    # print(something)
+
