@@ -53,9 +53,3 @@ class HeadHunter:
                             strftime("%Y-%m-%d")
                         self.vacancies.append(vacancy)
 
-
-if __name__ == '__main__':
-    test = HeadHunter()
-    x = json.dumps(test.vacancies, ensure_ascii=False)
-    with open('test.txt', 'w', encoding='utf-8') as outfile:
-        json.dump(x, outfile, ensure_ascii=False)
