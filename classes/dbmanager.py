@@ -1,5 +1,4 @@
 import psycopg2
-import psycopg2
 from utils.config import config
 from headhunter import HeadHunter
 
@@ -12,7 +11,7 @@ class DBManager:
     2. params - параметры для подключения к СУБД Postgres
     """
 
-    def __init__(self, db_name, params):
+    def __init__(self, db_name: str, params: dict):
         self.db_name = db_name
         self.params = params
 
