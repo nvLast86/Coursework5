@@ -4,6 +4,15 @@ import json
 
 
 class HeadHunter:
+    """
+    Класс HeadHunter для работы с сайтом hh.ru.
+    Создаваемые экземпляры класса содержат список словарей с данными о вакансиях.
+    Извлекаются данные о максимум 2000 вакансий (может быть меньше, т.к. не извлекаются вакансии,
+    не содержащие никаких данных о зарплате).
+    Аттрибуты класса:
+    url - базовый URL для работы с API
+    employers - список словарей с id и названием 10 компаний
+    """
     url = 'https://api.hh.ru/vacancies'
     employers = [{'id': 1740, 'name': 'Яндекс'},
                  {'id': 2180, 'name': 'OZON'},
@@ -20,7 +29,10 @@ class HeadHunter:
         self.vacancies = []
         self.get_vacancies()
 
-    def get_vacancies(self):
+    def get_vacancies(self) -> None:
+        """
+        Метод для получения данных о вакансиях
+        """
         for employer in HeadHunter.employers:
             for i in range(20):
                 params = {'employer_id': employer['id'], 'area': 113, 'page': i, 'per_page': 100}
@@ -42,26 +54,8 @@ class HeadHunter:
                         self.vacancies.append(vacancy)
 
 
-
 if __name__ == '__main__':
     test = HeadHunter()
     x = json.dumps(test.vacancies, ensure_ascii=False)
     with open('test.txt', 'w', encoding='utf-8') as outfile:
         json.dump(x, outfile, ensure_ascii=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
