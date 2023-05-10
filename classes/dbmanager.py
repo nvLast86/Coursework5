@@ -1,6 +1,4 @@
 import psycopg2
-from utils.config import config
-from headhunter import HeadHunter
 
 
 class DBManager:
@@ -16,12 +14,12 @@ class DBManager:
         self.params = params
 
     def __str__(self):
-        return "База данных с вакансиями 10 работодателей с сайта hh.ru создана." \
-               "Возможные действия:" \
-               "1. Список всех компаний и количества вакансий у каждой компании." \
-               "2. Список всех вакансий всех компаний." \
-               "3. Список средней зарплаты по вакансиям компаний." \
-               "4. Список всех вакансий, у которых зарплата выше средней по всем вакансиям." \
+        return "База данных с вакансиями 10 работодателей с сайта hh.ru создана.\n" \
+               "Возможные действия:\n" \
+               "1. Список всех компаний и количества вакансий у каждой компании.\n" \
+               "2. Список всех вакансий всех компаний.\n" \
+               "3. Список средней зарплаты по вакансиям компаний.\n" \
+               "4. Список всех вакансий, у которых зарплата выше средней по всем вакансиям.\n" \
                "5. Список всех вакансий, содержащих ключевое слово."
 
     def create_database(self) -> None:
@@ -181,14 +179,4 @@ class DBManager:
         finally:
             conn.close()
             return result
-
-
-if __name__ == '__main__':
-    hh = HeadHunter()
-    test = DBManager('test', config())
-    test.create_database()
-    test.create_tables()
-    test.insert_data(hh.employers)
-    test.insert_data(hh.vacancies, False)
-    print(test.get_all_vacancies())
 
